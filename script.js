@@ -11,6 +11,11 @@ const typeInputs=[...form.querySelectorAll('input[name="admissionType"]')];
 let previousPrefix='';
 let inProgress=false;
 let previewIsBlank=false;
+let savedSnapshot=null;
+let savedReceipt='';
+let archivePromise=null;
+const retryArchiveBtn=document.getElementById('retryArchiveBtn');
+window.mutahArchive?.init();
 
 function normalizeDigits(value){return String(value||'').replace(/[٠-٩]/g,c=>String(c.charCodeAt(0)-0x0660)).replace(/[۰-۹]/g,c=>String(c.charCodeAt(0)-0x06f0));}
 function expectedType(){return {'1':'تنافس','4':'موازي','9':'دولي'}[normalizeDigits(universityIdInput.value.trim())[0]]||'';}
@@ -42,6 +47,36 @@ function validForm(){
 function valuesFromForm(){const data=Object.fromEntries(new FormData(form).entries());data.universityId=normalizeDigits(data.universityId||'');data.studentPhone=normalizeDigits(data.studentPhone||'');data.fatherPhone=normalizeDigits(data.fatherPhone||'');data.motherPhone=normalizeDigits(data.motherPhone||'');return data;}
 function setStatus(message,type='info'){
  saveStatus.hidden=!message;saveStatus.textContent=message;saveStatus.dataset.status=type;
+}
+async function archiveIfNeeded(data){
+ const snapshot=JSON.stringify(data);
+ if(savedSnapshot===snapshot)return {ok:true,receipt:savedReceipt};
+ if(archivePromise)return archivePromise;
+ setStatus('جارٍ حفظ نسخة إلكترونية لدى الإدارة...','info');
+ retryArchiveBtn.hidden=true;
+ archivePromise=(async()=>{
+   try{
+     const receipt=await window.mutahArchive.submit(data);
+     savedSnapshot=snapshot;savedReceipt=receipt;
+     setStatus('تم حفظ نسخة إلكترونية لدى الإدارة بنجاح. رقم الاستلام: '+receipt,'success');
+     return {ok:true,receipt};
+   }catch(err){
+     setStatus('لم يتم تأكيد حفظ الطلب إلكترونيًا: '+(err?.message||'خطأ غير معروف')+' يمكنك طباعة الورقة أو حفظ PDF، ثم إعادة المحاولة.','error');
+     retryArchiveBtn.hidden=!window.mutahArchive?.enabled;
+     return {ok:false,message:err?.message||'لم يتم تأكيد الحفظ'};
+   }
+ })();
+ try{return await archivePromise;}finally{archivePromise=null;}
+}
+async function previewFilled(){
+ if(!validForm())return;
+ const data=valuesFromForm();
+ const saved=await archiveIfNeeded(data);
+ showPreview(false);
+ const confirm=document.getElementById('saveConfirmation');
+ confirm.hidden=false;
+ confirm.textContent=saved.ok?'تم استلام النسخة الإلكترونية لدى الإدارة — رقم الاستلام: '+saved.receipt:'تنبيه: لم يتم تأكيد حفظ النسخة الإلكترونية؛ تستطيع الطباعة أو حفظ PDF، ثم العودة وإعادة المحاولة.';
+ confirm.classList.toggle('save-failed',!saved.ok);
 }
 function setPreviewScale(){
  const widthMm=210,available=Math.max(270,window.innerWidth-20),base=widthMm*96/25.4,scale=Math.min(1,available/base);
@@ -81,21 +116,29 @@ async function savePDF(blank){
  if(inProgress)return;
  inProgress=true;
  const btn=document.getElementById('savePdfBtn');btn.disabled=true;
- try{await downloadPDF(blank?{}:valuesFromForm(),blank);setStatus('تم تجهيز ملف PDF وبدء تنزيله على جهازك.','success');}
+ try{
+   const current=blank?{}:valuesFromForm();
+   if(!blank)await archiveIfNeeded(current);
+   await downloadPDF(current,blank);
+   if(blank)setStatus('تم تجهيز نموذج PDF الفارغ وبدء تنزيله.','success');
+   else if(savedSnapshot===JSON.stringify(current))setStatus('تم تجهيز PDF وبدء تنزيله. والنسخة الإلكترونية محفوظة لدى الإدارة.','success');
+   else setStatus('تم تجهيز PDF، لكن لم يتم تأكيد حفظ نسخة لدى الإدارة. يمكنك المحاولة مجددًا.','error');
+ }
  catch(error){setStatus(error?.message||'تعذّر إنشاء ملف PDF. حاول مرة أخرى.','error');}
  finally{inProgress=false;btn.disabled=false;}
 }
-form.addEventListener('submit',e=>{e.preventDefault();if(validForm())showPreview(false);});
-document.getElementById('previewBtn').addEventListener('click',()=>{if(validForm())showPreview(false);});
+form.addEventListener('submit',e=>{e.preventDefault();void previewFilled();});
+document.getElementById('previewBtn').addEventListener('click',()=>void previewFilled());
 document.getElementById('savePdfBtn').addEventListener('click',()=>void savePDF(false));
 document.getElementById('blankPrintBtn').addEventListener('click',()=>{showPreview(true,false);requestAnimationFrame(()=>window.print());});
 document.getElementById('previewPdfBtn').addEventListener('click',()=>void (async()=>{
- try{await downloadPDF(previewIsBlank?{}:valuesFromForm(),previewIsBlank);}
+ try{if(!previewIsBlank)await archiveIfNeeded(valuesFromForm());await downloadPDF(previewIsBlank?{}:valuesFromForm(),previewIsBlank);}
  catch(error){const confirmation=document.getElementById('saveConfirmation');confirmation.hidden=false;confirmation.textContent=error?.message||'تعذر حفظ PDF';}
 })());
 document.getElementById('editBtn').addEventListener('click',editForm);
+retryArchiveBtn.addEventListener('click',()=>{if(validForm())void archiveIfNeeded(valuesFromForm());});
 document.getElementById('printBtn').addEventListener('click',printCurrent);
-form.addEventListener('reset',()=>setTimeout(()=>{updatePriorRequired();typeMismatch.hidden=true;previousPrefix='';setStatus('');Object.keys(minWords).forEach(id=>document.getElementById(id).setCustomValidity(''));},0));
+form.addEventListener('reset',()=>setTimeout(()=>{updatePriorRequired();typeMismatch.hidden=true;previousPrefix='';savedSnapshot=null;savedReceipt='';retryArchiveBtn.hidden=true;window.mutahArchive?.resetChallenge();setStatus('');Object.keys(minWords).forEach(id=>document.getElementById(id).setCustomValidity(''));},0));
 window.addEventListener('resize',()=>{if(!previewScreen.hidden)setPreviewScale();});
 window.addEventListener('beforeprint',()=>{if(!previewScreen.hidden)applyValues(previewIsBlank?{}:valuesFromForm(),previewIsBlank);});
 const year=document.getElementById('schoolYear');year.max=new Date().getFullYear()+1;

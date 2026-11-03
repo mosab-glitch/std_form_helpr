@@ -39,3 +39,11 @@ button[disabled]{opacity:.58;cursor:not-allowed}
 
 /* V5: Larger university ID, without underline, clear header hierarchy */
 .print-id{right:77mm;top:10mm;font-size:11.5pt;display:flex;align-items:center;gap:3mm;direction:rtl}.print-id .paper-id-value{display:inline-block;min-width:26mm;min-height:6mm;line-height:6mm;font-size:17pt;font-weight:900;border:0;direction:ltr;text-align:center;letter-spacing:.35mm}.print-logo{top:19mm;width:18mm;height:18mm}.header-inner h1{line-height:1.35}.header-inner p{color:#dce9f8}
+/* V6: Private archive status, consent and Turnstile; mobile friendly. */
+.archive-consent{margin:15px 0 8px}
+.archive-security{border:1px solid #c8d5e5;border-radius:12px;padding:14px;margin-top:13px;background:#f9fbff;display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.archive-security strong{color:#193d62;font-size:13px}
+.archive-small-note{font-size:12px;color:#65748a;margin:0}
+.save-confirmation.save-failed{background:#fff5ec;border-color:#f0c398;color:#895016}
+#retryArchiveBtn{margin-top:12px;min-height:43px}
+@media(max-width:740px){.archive-security{padding:11px}}
