@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#173963">
-<meta name="description" content="نموذج طلب التحاق جامعة مؤتة - تعبئة إلكترونية وطباعة A4 بنفس النموذج الورقي"><title>مساعد تعبئة نموذج طلب الالتحاق2</title>
+<meta name="description" content="نموذج طلب التحاق جامعة مؤتة - تعبئة إلكترونية وطباعة A4 بنفس النموذج الورقي"><title>مساعد تعبئة نموذج طلب الالتحاق</title>
 <link rel="stylesheet" href="style.css"></head>
 <body>
 <div id="entryScreen">
-<header class="app-header"><div class="header-inner"><img class="header-logo" src="logo.png" alt="شعار جامعة مؤتة"><div><h1>مساعد تعبئة نموذج طلب الالتحاق2</h1><p>إعداد وبرمجة مصعب الطراونة</p></div></div></header>
+<header class="app-header"><div class="header-inner"><img class="header-logo" src="logo.png" alt="شعار جامعة مؤتة"><div><h1>مساعد تعبئة نموذج طلب الالتحاق</h1><p>إعداد وبرمجة مصعب الطراونة</p></div></div></header>
 <main class="main">
  <div class="introduction"><div class="intro-flex"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><div><strong>يرجى تعبئة بيانات الطالب بدقة. يمكنك تعبئة النموذج، ثم طباعته أو حفظ نسخة PDF على جهازك.</strong> جميع الحقول إلزامية باستثناء بيانات الجامعات السابقة. يمكن معاينة نموذج A4 قبل الطباعة. عند حفظ PDF أو معاينة الطلب المكتمل، تُحفظ نسخة إلكترونية خاصة لدى الإدارة عند تفعيل الخدمة.</div></div></div>
 <form id="admissionForm" autocomplete="on">
@@ -48,9 +48,9 @@
  <section class="form-section"><div class="section-head"><span class="step-number">07</span><h2>التخصص المطلوب أو الذي قبل فيه</h2></div><div class="section-body"><div class="field"><span class="field-label">اختر التخصص <span class="req">*</span></span><div class="radios" role="radiogroup" aria-label="التخصص المطلوب"><label class="choice large"><input type="radio" name="desiredMajor" value="دكتور في الطب" required> دكتور في الطب</label><label class="choice large"><input type="radio" name="desiredMajor" value="طب وجراحة الأسنان"> طب وجراحة الأسنان</label></div></div></div></section>
  <section class="form-section"><div class="section-head"><span class="step-number">08</span><h2>الإقرار وإنهاء الطلب</h2></div><div class="section-body">
  <label class="confirm-line"><input id="declaration" name="declaration" type="checkbox" required><span>أقر وأعترف بأن جميع البيانات الواردة في هذا الطلب صحيحة، وأتحمل مسؤولية أي خطأ فيها. <span class="req">*</span></span></label>
- <p class="action-help">بعد تعبئة البيانات، اختر الطباعة أو حفظ PDF. عند استخدام النموذج المكتمل، يتم إرسال نسخة إلكترونية من البيانات إلى أرشيف خاص بالإدارة إذا كانت خدمة الحفظ مفعّلة. لا يستطيع الطلاب الاطلاع على طلبات غيرهم.</p>
- <label id="archiveConsentWrap" class="confirm-line archive-consent"><input id="archiveConsent" name="archiveConsent" type="checkbox" required><span>اطلعت على إشعار حفظ نسخة إلكترونية من البيانات لدى الإدارة، وأوافق على إرسالها لهذا الغرض. <span class="req">*</span></span></label>
- <div id="archiveSecurity" class="archive-security" hidden><strong>التحقق الأمني قبل حفظ الطلب</strong><div id="turnstileWidget"></div><p id="archiveChallengeText" class="archive-small-note">قد يظهر تحقق بسيط لحماية نظام استلام الطلبات.</p></div>
+
+ <label id="archiveConsentWrap" class="confirm-line archive-consent"><input id="archiveConsent" name="archiveConsent" type="checkbox" required><span>للطلاب الذكور الاردنيين  بعد طباعة الطلب مراجعة مكتب خدمة العلم لتوقيع وختم الطلب <span class="req">*</span></span></label>
+
  <div class="form-actions main-actions">
   <button type="button" class="primary" id="previewBtn">معاينة وطباعة الطلب</button>
   <button type="button" class="secondary" id="savePdfBtn">حفظ PDF للطلب</button>
